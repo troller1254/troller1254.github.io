@@ -1,5 +1,5 @@
 /* =========================
-   REPORTS - Markdown 불러오기
+   REPORTS - Markdown
 ========================= */
 
 const viewer = document.getElementById('viewer');
@@ -8,35 +8,43 @@ const closeViewer = document.getElementById('closeViewer');
 
 document.querySelectorAll('.card[data-report]').forEach(card => {
 
-  card.addEventListener('click', async () => {
+  card.addEventListener('click', async function () {
+
+    const filePath = this.getAttribute('data-report');
+
+    console.log('Markdown 불러오기:', filePath);
 
     try {
 
-      // HTML의 data-report 경로에 있는 md 파일 불러오기
-      const response = await fetch(card.dataset.report);
+      const response = await fetch(filePath);
 
       if (!response.ok) {
-        throw new Error('Markdown 파일을 불러오지 못했습니다.');
+        throw new Error(
+          `파일을 찾을 수 없습니다: ${filePath}`
+        );
       }
 
-      // md 파일 내용 읽기
       const markdown = await response.text();
 
-      // Markdown → HTML 변환
       content.innerHTML = marked.parse(markdown);
 
-      // Viewer 열기
       viewer.classList.add('open');
       viewer.setAttribute('aria-hidden', 'false');
 
-      // 보고서를 보는 동안 뒤 페이지 스크롤 방지
       document.body.style.overflow = 'hidden';
 
     } catch (error) {
 
+      console.error(error);
+
       content.innerHTML = `
         <h2>문서를 불러올 수 없습니다.</h2>
         <p>${error.message}</p>
+        <p>
+          <small>
+            파일 경로: ${filePath}
+          </small>
+        </p>
       `;
 
       viewer.classList.add('open');
