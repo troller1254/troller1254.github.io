@@ -1,22 +1,53 @@
+/* =========================
+   REPORTS - Markdown 불러오기
+========================= */
+
 const viewer = document.getElementById('viewer');
 const content = document.getElementById('markdownContent');
 const closeViewer = document.getElementById('closeViewer');
 
 document.querySelectorAll('.card[data-report]').forEach(card => {
+
   card.addEventListener('click', async () => {
+
     try {
+
+      // HTML의 data-report 경로에 있는 md 파일 불러오기
       const response = await fetch(card.dataset.report);
-      if (!response.ok) throw new Error('Markdown 파일을 불러오지 못했습니다.');
+
+      if (!response.ok) {
+        throw new Error('Markdown 파일을 불러오지 못했습니다.');
+      }
+
+      // md 파일 내용 읽기
       const markdown = await response.text();
+
+      // Markdown → HTML 변환
       content.innerHTML = marked.parse(markdown);
+
+      // Viewer 열기
       viewer.classList.add('open');
       viewer.setAttribute('aria-hidden', 'false');
+
+      // 보고서를 보는 동안 뒤 페이지 스크롤 방지
       document.body.style.overflow = 'hidden';
+
     } catch (error) {
-      content.innerHTML = `<h2>문서를 불러올 수 없습니다.</h2><p>${error.message}</p>`;
+
+      content.innerHTML = `
+        <h2>문서를 불러올 수 없습니다.</h2>
+        <p>${error.message}</p>
+      `;
+
       viewer.classList.add('open');
+      viewer.setAttribute('aria-hidden', 'false');
+
+      document.body.style.overflow = 'hidden';
+
     }
+
   });
+
 });
 
 const trpgDrawers = document.querySelectorAll('.trpg-drawer');
